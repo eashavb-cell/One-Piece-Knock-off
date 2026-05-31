@@ -3,186 +3,106 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Top Down Adventure</title>
+<title>Windmill Village RPG</title>
 
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{overflow:hidden;background:#111;}
 
-body{
-    overflow:hidden;
-    background:#111;
-}
-
+/* VIEW */
 #viewport{
-    width:100vw;
-    height:100vh;
-    overflow:hidden;
-    position:relative;
+    width:100vw;height:100vh;overflow:hidden;position:relative;
 }
 
+/* WORLD */
 #world{
     position:absolute;
-    width:4000px;
-    height:4000px;
+    width:4000px;height:4000px;
 
-    background:
+    background:#6fbf73;
+    background-image:
         linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
-
     background-size:50px 50px;
-    background-color:#58a85a;
 
-    border:100px solid #2b2b2b;
+    border:80px solid #2b2b2b;
 }
 
-/* trees */
+/* TREE */
 .tree{
     position:absolute;
-    width:70px;
-    height:70px;
+    width:70px;height:70px;
     background:#2f6d3c;
     border-radius:50%;
     border:5px solid #1c4d29;
 }
 
-.tree::after{
-    content:"";
+/* HOUSE */
+.house{
     position:absolute;
-    width:16px;
-    height:22px;
-    background:#6b4423;
-    left:22px;
-    bottom:-12px;
+    width:120px;height:100px;
+    background:#c98b4b;
+    border:5px solid #5a3a1b;
 }
 
-/* player container */
+/* WINDMILL */
+.windmill{
+    position:absolute;
+    width:60px;height:140px;
+    background:#ddd;
+    border:5px solid #444;
+}
+.windmill::after{
+    content:"";
+    position:absolute;
+    width:120px;height:120px;
+    border-radius:50%;
+    border:6px solid #222;
+    left:-35px;top:-60px;
+}
+
+/* NPC */
+.npc{
+    position:absolute;
+    width:35px;height:45px;
+    background:#e3c08d;
+    border:3px solid #3a2a1a;
+}
+
+/* PLAYER */
 #player{
     position:absolute;
-    left:50%;
-    top:50%;
-    width:80px;
-    height:80px;
+    left:50%;top:50%;
+    width:90px;height:110px;
     transform:translate(-50%,-50%);
-    z-index:100;
+    z-index:10;
 }
 
-/* shadow */
 .shadow{
     position:absolute;
-    width:28px;
-    height:10px;
+    width:36px;height:14px;
     background:rgba(0,0,0,0.35);
     border-radius:50%;
-    left:26px;
-    top:60px;
+    left:50%;bottom:0;
+    transform:translateX(-50%);
 }
 
-/* head */
-.head{
+#sprite{
     position:absolute;
-    width:22px;
-    height:22px;
-    background:#f1c27d;
-    border-radius:6px;
-    left:29px;
-    top:18px;
+    left:50%;top:0;
+    height:110px;
+    transform:translateX(-50%);
 }
 
-/* hair */
-.hair{
-    position:absolute;
-    width:26px;
-    height:14px;
-    background:#111;
-    left:27px;
-    top:12px;
-    border-radius:6px 6px 0 0;
-}
-
-/* straw hat */
-.hat{
-    position:absolute;
-    width:38px;
-    height:14px;
-    background:#d8b15a;
-    border-radius:50%;
-    left:21px;
-    top:4px;
-    border:3px solid #8a6424;
-}
-
-.hat::after{
-    content:"";
-    position:absolute;
-    width:38px;
-    height:5px;
-    background:#c43b3b;
-    top:5px;
-    left:0;
-}
-
-/* body (red vest) */
-.body{
-    position:absolute;
-    width:26px;
-    height:26px;
-    background:#d63b3b;
-    left:27px;
-    top:40px;
-    border-radius:6px;
-    border:2px solid #8c1f1f;
-}
-
-/* arms */
-.armL,.armR{
-    position:absolute;
-    width:8px;
-    height:16px;
-    background:#f1c27d;
-    top:44px;
-    border-radius:4px;
-}
-
-.armL{ left:19px; }
-.armR{ left:61px; }
-
-/* shorts */
-.shorts{
-    position:absolute;
-    width:26px;
-    height:14px;
-    background:#2f65d9;
-    left:27px;
-    top:62px;
-    border-radius:4px;
-}
-
-/* legs */
-.legL,.legR{
-    position:absolute;
-    width:7px;
-    height:14px;
-    background:#f1c27d;
-    top:74px;
-    border-radius:3px;
-}
-
-.legL{ left:33px; }
-.legR{ left:46px; }
-
+/* UI */
 #info{
     position:fixed;
-    top:10px;
-    left:10px;
+    top:10px;left:10px;
+    background:rgba(0,0,0,0.6);
     color:white;
-    background:rgba(0,0,0,0.5);
     padding:10px;
-    border-radius:8px;
     font-family:Arial;
+    border-radius:8px;
     z-index:999;
 }
 </style>
@@ -190,79 +110,165 @@ body{
 <body>
 
 <div id="viewport">
-
     <div id="world">
 
-        <div class="tree" style="left:600px;top:600px;"></div>
-        <div class="tree" style="left:1200px;top:900px;"></div>
-        <div class="tree" style="left:2000px;top:1500px;"></div>
-        <div class="tree" style="left:2800px;top:1000px;"></div>
-        <div class="tree" style="left:3200px;top:2400px;"></div>
+        <!-- village -->
+        <div class="house" style="left:700px;top:800px;"></div>
+        <div class="house" style="left:1400px;top:1200px;"></div>
+        <div class="windmill" style="left:2500px;top:1600px;"></div>
+
+        <div class="tree" style="left:900px;top:600px;"></div>
+        <div class="tree" style="left:1600px;top:900px;"></div>
+        <div class="tree" style="left:2200px;top:1400px;"></div>
 
     </div>
 
-    <!-- PLAYER -->
     <div id="player">
         <div class="shadow"></div>
-        <div class="hat"></div>
-        <div class="hair"></div>
-        <div class="head"></div>
-        <div class="body"></div>
-        <div class="armL"></div>
-        <div class="armR"></div>
-        <div class="shorts"></div>
-        <div class="legL"></div>
-        <div class="legR"></div>
+        <img id="sprite"
+        src="file:///C:/Users/easha/Documents/One-Piece-Knock-Off/Visuals/PLAYERLUFFY/11-20/sprite_1LUFFY.png">
     </div>
-
 </div>
 
-<div id="info">W A S D to Move</div>
+<div id="info"></div>
 
 <script>
-
 const world = document.getElementById("world");
-
-const WORLD_WIDTH = 4000;
-const WORLD_HEIGHT = 4000;
+const sprite = document.getElementById("sprite");
 
 let playerX = 2000;
 let playerY = 2000;
 
-const speed = 5;
 const keys = {};
+const speed = 5;
 
-document.addEventListener("keydown", e=>{
-    keys[e.key.toLowerCase()] = true;
-});
+/* ===== LEVEL SYSTEM ===== */
+let level = 1;
+let xp = 0;
 
-document.addEventListener("keyup", e=>{
-    keys[e.key.toLowerCase()] = false;
-});
+/* ===== QUEST ===== */
+const quests = [{
+    text:"Talk to 3 villagers",
+    goal:3,
+    progress:0,
+    completed:false,
+    reward:100
+}];
 
+let touchedNPCs = new Set();
+
+/* ===== NPCS ===== */
+const npcs = [];
+
+function createNPC(x,y){
+    const el = document.createElement("div");
+    el.className = "npc";
+    world.appendChild(el);
+
+    npcs.push({
+        el,x,y,
+        dx:Math.random()*2-1,
+        dy:Math.random()*2-1,
+        t:0
+    });
+}
+
+for(let i=0;i<20;i++){
+    createNPC(
+        500+Math.random()*3000,
+        500+Math.random()*3000
+    );
+}
+
+/* INPUT */
+document.addEventListener("keydown",e=>keys[e.key.toLowerCase()]=true);
+document.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+
+/* XP */
+function addXP(amount){
+    xp += amount;
+    if(xp >= level*100 && level < 10){
+        xp -= level*100;
+        level++;
+        alert("LEVEL UP! Level " + level);
+    }
+}
+
+/* QUEST */
+function checkQuests(){
+    quests.forEach(q=>{
+        if(!q.completed){
+            q.progress = touchedNPCs.size;
+            if(q.progress >= q.goal){
+                q.completed = true;
+                addXP(q.reward);
+                alert("Quest Complete!");
+            }
+        }
+    });
+}
+
+/* UI */
+function updateUI(){
+    document.getElementById("info").innerHTML = `
+    LEVEL: ${level}/10<br>
+    XP: ${xp}/${level*100}<br>
+    QUEST: ${quests[0].text}<br>
+    (${quests[0].progress}/${quests[0].goal})
+    `;
+}
+
+/* GAME LOOP */
 function update(){
 
-    if(keys["w"]) playerY -= speed;
-    if(keys["s"]) playerY += speed;
-    if(keys["a"]) playerX -= speed;
-    if(keys["d"]) playerX += speed;
+    let moving=false;
 
-    // map borders
-    playerX = Math.max(100, Math.min(WORLD_WIDTH-100, playerX));
-    playerY = Math.max(100, Math.min(WORLD_HEIGHT-100, playerY));
+    if(keys["w"]){playerY-=speed;moving=true;}
+    if(keys["s"]){playerY+=speed;moving=true;}
+    if(keys["a"]){playerX-=speed;moving=true;}
+    if(keys["d"]){playerX+=speed;moving=true;}
 
-    // camera follow
-    const cameraX = playerX - window.innerWidth / 2;
-    const cameraY = playerY - window.innerHeight / 2;
+    playerX=Math.max(100,Math.min(3900,playerX));
+    playerY=Math.max(100,Math.min(3900,playerY));
 
-    world.style.transform =
-        `translate(${-cameraX}px, ${-cameraY}px)`;
+    /* NPC update */
+    npcs.forEach((n,i)=>{
+        n.t++;
+
+        if(n.t%60===0){
+            n.dx=Math.random()*2-1;
+            n.dy=Math.random()*2-1;
+        }
+
+        n.x += n.dx;
+        n.y += n.dy;
+
+        n.el.style.left=n.x+"px";
+        n.el.style.top=n.y+"px";
+
+        let dx=n.x-playerX;
+        let dy=n.y-playerY;
+        let dist=Math.sqrt(dx*dx+dy*dy);
+
+        if(dist<60){
+            touchedNPCs.add(i);
+        }
+    });
+
+    checkQuests();
+    updateUI();
+
+    /* camera */
+    let camX = playerX - window.innerWidth/2;
+    let camY = playerY - window.innerHeight/2;
+
+    world.style.transform=`translate(${-camX}px,${-camY}px)`;
 
     requestAnimationFrame(update);
 }
 
 update();
-
+updateUI();
 </script>
 
 </body>
