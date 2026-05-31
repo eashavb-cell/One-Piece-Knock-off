@@ -1,11 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top Down Adventure</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    overflow:hidden;
+    background:#111;
+}
+
+#viewport{
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+    position:relative;
+}
+
+#world{
+    position:absolute;
+    width:4000px;
+    height:4000px;
+
+    background:
+        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+
+    background-size:50px 50px;
+    background-color:#58a85a;
+
+    border:100px solid #2b2b2b;
+}
+
+/* trees */
+.tree{
+    position:absolute;
+    width:70px;
+    height:70px;
+    background:#2f6d3c;
+    border-radius:50%;
+    border:5px solid #1c4d29;
+}
+
+.tree::after{
+    content:"";
+    position:absolute;
+    width:16px;
+    height:22px;
+    background:#6b4423;
+    left:22px;
+    bottom:-12px;
+}
+
+/* player container */
+#player{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:80px;
+    height:80px;
+    transform:translate(-50%,-50%);
+    z-index:100;
+}
+
+/* shadow */
+.shadow{
+    position:absolute;
+    width:28px;
+    height:10px;
+    background:rgba(0,0,0,0.35);
+    border-radius:50%;
+    left:26px;
+    top:60px;
+}
+
+/* head */
+.head{
+    position:absolute;
+    width:22px;
+    height:22px;
+    background:#f1c27d;
+    border-radius:6px;
+    left:29px;
+    top:18px;
+}
+
+/* hair */
+.hair{
+    position:absolute;
+    width:26px;
+    height:14px;
+    background:#111;
+    left:27px;
+    top:12px;
+    border-radius:6px 6px 0 0;
+}
+
+/* straw hat */
+.hat{
+    position:absolute;
+    width:38px;
+    height:14px;
+    background:#d8b15a;
+    border-radius:50%;
+    left:21px;
+    top:4px;
+    border:3px solid #8a6424;
+}
+
+.hat::after{
+    content:"";
+    position:absolute;
+    width:38px;
+    height:5px;
+    background:#c43b3b;
+    top:5px;
+    left:0;
+}
+
+/* body (red vest) */
+.body{
+    position:absolute;
+    width:26px;
+    height:26px;
+    background:#d63b3b;
+    left:27px;
+    top:40px;
+    border-radius:6px;
+    border:2px solid #8c1f1f;
+}
+
+/* arms */
+.armL,.armR{
+    position:absolute;
+    width:8px;
+    height:16px;
+    background:#f1c27d;
+    top:44px;
+    border-radius:4px;
+}
+
+.armL{ left:19px; }
+.armR{ left:61px; }
+
+/* shorts */
+.shorts{
+    position:absolute;
+    width:26px;
+    height:14px;
+    background:#2f65d9;
+    left:27px;
+    top:62px;
+    border-radius:4px;
+}
+
+/* legs */
+.legL,.legR{
+    position:absolute;
+    width:7px;
+    height:14px;
+    background:#f1c27d;
+    top:74px;
+    border-radius:3px;
+}
+
+.legL{ left:33px; }
+.legR{ left:46px; }
+
+#info{
+    position:fixed;
+    top:10px;
+    left:10px;
+    color:white;
+    background:rgba(0,0,0,0.5);
+    padding:10px;
+    border-radius:8px;
+    font-family:Arial;
+    z-index:999;
+}
+</style>
 </head>
 <body>
-    <h1>Hello!</h1>
+
+<div id="viewport">
+
+    <div id="world">
+
+        <div class="tree" style="left:600px;top:600px;"></div>
+        <div class="tree" style="left:1200px;top:900px;"></div>
+        <div class="tree" style="left:2000px;top:1500px;"></div>
+        <div class="tree" style="left:2800px;top:1000px;"></div>
+        <div class="tree" style="left:3200px;top:2400px;"></div>
+
+    </div>
+
+    <!-- PLAYER -->
+    <div id="player">
+        <div class="shadow"></div>
+        <div class="hat"></div>
+        <div class="hair"></div>
+        <div class="head"></div>
+        <div class="body"></div>
+        <div class="armL"></div>
+        <div class="armR"></div>
+        <div class="shorts"></div>
+        <div class="legL"></div>
+        <div class="legR"></div>
+    </div>
+
+</div>
+
+<div id="info">W A S D to Move</div>
+
+<script>
+
+const world = document.getElementById("world");
+
+const WORLD_WIDTH = 4000;
+const WORLD_HEIGHT = 4000;
+
+let playerX = 2000;
+let playerY = 2000;
+
+const speed = 5;
+const keys = {};
+
+document.addEventListener("keydown", e=>{
+    keys[e.key.toLowerCase()] = true;
+});
+
+document.addEventListener("keyup", e=>{
+    keys[e.key.toLowerCase()] = false;
+});
+
+function update(){
+
+    if(keys["w"]) playerY -= speed;
+    if(keys["s"]) playerY += speed;
+    if(keys["a"]) playerX -= speed;
+    if(keys["d"]) playerX += speed;
+
+    // map borders
+    playerX = Math.max(100, Math.min(WORLD_WIDTH-100, playerX));
+    playerY = Math.max(100, Math.min(WORLD_HEIGHT-100, playerY));
+
+    // camera follow
+    const cameraX = playerX - window.innerWidth / 2;
+    const cameraY = playerY - window.innerHeight / 2;
+
+    world.style.transform =
+        `translate(${-cameraX}px, ${-cameraY}px)`;
+
+    requestAnimationFrame(update);
+}
+
+update();
+
+</script>
+
 </body>
 </html>
