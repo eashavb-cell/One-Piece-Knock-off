@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top Down Adventure</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    overflow:hidden;
+    background:#111;
+}
+
+#viewport{
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+    position:relative;
+}
+
+#world{
+    position:absolute;
+    width:4000px;
+    height:4000px;
+
+    background:
+        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+
+    background-size:50px 50px;
+    background-color:#58a85a;
+
+    border:100px solid #2b2b2b;
+}
+
+/* trees */
+.tree{
+    position:absolute;
+    width:70px;
+    height:70px;
+    background:#2f6d3c;
+    border-radius:50%;
+    border:5px solid #1c4d29;
+}
+
+.tree::after{
+    content:"";
+    position:absolute;
+    width:16px;
+    height:22px;
+    background:#6b4423;
+    left:22px;
+    bottom:-12px;
+}
+
+/* player */
+#player{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:90px;
+    height:110px;
+    transform:translate(-50%,-50%);
+    z-index:100;
+}
+
+/* shadow (now centered under feet) */
+.shadow{
+    position:absolute;
+    width:36px;
+    height:14px;
+    background:rgba(0,0,0,0.35);
+    border-radius:50%;
+    left:50%;
+    bottom:0px;
+    transform:translateX(-50%);
+}
+
+/* sprite */
+#sprite{
+    position:absolute;
+    left:50%;
+    top:0px;
+
+    height:110px;
+    width:auto;
+
+    transform:translateX(-50%);
+    image-rendering: pixelated;
+}
+
+/* UI */
+#info{
+    position:fixed;
+    top:10px;
+    left:10px;
+    color:white;
+    background:rgba(0,0,0,0.5);
+    padding:10px;
+    border-radius:8px;
+    font-family:Arial;
+    z-index:999;
+}
+</style>
+</head>
+<body>
+
+<div id="viewport">
+
+    <div id="world">
+
+        <div class="tree" style="left:600px;top:600px;"></div>
+        <div class="tree" style="left:1200px;top:900px;"></div>
+        <div class="tree" style="left:2000px;top:1500px;"></div>
+        <div class="tree" style="left:2800px;top:1000px;"></div>
+        <div class="tree" style="left:3200px;top:2400px;"></div>
+
+    </div>
+
+    <!-- PLAYER -->
+    <div id="player">
+        <div class="shadow"></div>
+        <img id="sprite" src="file:///C:/Users/easha/Documents/One-Piece-Knock-Off/Visuals/PLAYERLUFFY/11-20/sprite_1LUFFY.png">
+    </div>
+
+</div>
+
+<div id="info">W A S D to Move</div>
+
+<script>
+
+const world = document.getElementById("world");
+const sprite = document.getElementById("sprite");
+
+const WORLD_WIDTH = 4000;
+const WORLD_HEIGHT = 4000;
+
+let playerX = 2000;
+let playerY = 2000;
+
+const speed = 5;
+const keys = {};
+
+let walking = false;
+let frame = 0;
+let animTimer = 0;
+
+document.addEventListener("keydown", e=>{
+    keys[e.key.toLowerCase()] = true;
+});
+
+document.addEventListener("keyup", e=>{
+    keys[e.key.toLowerCase()] = false;
+});
+
+function update(){
+
+    let moving = false;
+
+    if(keys["w"]) { playerY -= speed; moving = true; }
+    if(keys["s"]) { playerY += speed; moving = true; }
+    if(keys["a"]) { playerX -= speed; moving = true; }
+    if(keys["d"]) { playerX += speed; moving = true; }
+
+    // bounds
+    playerX = Math.max(100, Math.min(WORLD_WIDTH-100, playerX));
+    playerY = Math.max(100, Math.min(WORLD_HEIGHT-100, playerY));
+
+    // animation control
+    if(moving){
+        animTimer++;
+        if(animTimer % 10 === 0){
+            frame = (frame + 1) % 2;
+        }
+    }
+
+    // SIMPLE WALK EFFECT (no floating)
+    const bob = moving ? Math.sin(animTimer * 0.3) * 2 : 0;
+    document.getElementById("player").style.transform =
+        `translate(-50%,-50%) translateY(${bob}px)`;
+
+    // flip based on direction
+    if(keys["a"]) sprite.style.transform = "translateX(-50%) scaleX(-1)";
+    else if(keys["d"]) sprite.style.transform = "translateX(-50%) scaleX(1)";
+
+    // camera
+    const cameraX = playerX - window.innerWidth / 2;
+    const cameraY = playerY - window.innerHeight / 2;
+
+    world.style.transform =
+        `translate(${-cameraX}px, ${-cameraY}px)`;
+
+    requestAnimationFrame(update);
+}
+
+update();
+
+</script>
+
+</body>
+</html>
